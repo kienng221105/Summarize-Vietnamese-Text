@@ -36,7 +36,7 @@ flowchart TD
 
   Embed --> VDB[(ChromaDB)]
 
-  Core --> ViT5[ViT5/PhoGPT]
+  Core --> ViT5[ViT5]
 
 ```
 
@@ -242,7 +242,7 @@ flowchart TD
 
   F --> G[Các đoạn Text liên quan nhất top-k]
 
-  G --> I[PhoGPT]
+  G --> I[Finetune ViT5/ViT5]
 
   H[Prompt Template] --> I
 
@@ -419,7 +419,7 @@ flowchart TD
 
   
 
-## 9️ Luồng Phân tích Dữ liệu Hệ thống
+## 9️ Luồng Phân tích Dữ liệu Hệ thống(Sẽ cập nhật thêm)
 
   
 
