@@ -102,7 +102,7 @@ flowchart TD
 
   F --> Document[RAG]
 
-  Options --> Process[Prompt]
+  Options --> Process[Xử lý AI]
 
   Document --> Process
 
@@ -111,37 +111,14 @@ flowchart TD
   Gen --> Save[(Lưu vào DB Lịch sử SQL)]
 
   Save --> UI[Hiển thị lên Giao diện]
+
 ```
 
 ---
 
-## 4️ Pipeline cho Prompt Engineering (Document ngắn)
 
-Kiến trúc dành cho request nhỏ không cần VectorDB.
+## 4 Pipeline cho RAG
 
-```mermaid
-flowchart TD
-
-  A[Nhập Văn bản từ Frontend]
-
-  A --> O[Summary Options<br/>Length % / Output Format]
-
-  O --> B[Gắn Context / Prompt Template]
-
-  B --> C[Finetuned ViT5]
-
-  C --> D[Văn bản Tóm tắt]
-
-  D --> E[(Lưu Log Message vào CSDL SQL)]
-
-  E --> F[Trả về Frontend UI]
-```
-
----
-
-## 5️ Pipeline cho RAG (Document dài)
-
-Kiến trúc chuẩn cho tóm tắt tài liệu dài.
 
 ```mermaid
 flowchart TD
@@ -158,7 +135,7 @@ flowchart TD
   D --> E
 
   %% Summary Options
-  O[Summary Options] --> H[Prompt Template]
+  O[Summary Options] --> H[Summary Configuration]
 
   %% Retrieval
   E -. Similarity Search .-> F[Retriever]
@@ -175,11 +152,11 @@ flowchart TD
   J --> K[(Lưu vào SQL DB)]
 
   K --> L[Trả về Frontend UI]
+
 ```
 
 ---
-
-## 6️ Kiến trúc luồng Backend API
+## 5 Kiến trúc luồng Backend API
 
 ```mermaid
 flowchart TD
@@ -214,9 +191,9 @@ flowchart TD
 
   Ret --> RAG[RAG Service]
 
-  AIC --> Prompt[Prompt Builder<br/>Length % + Format]
+  AIC --> Opt[Summary Options Processor]
 
-  Prompt --> LLM[LLM Calling Module]
+  Opt --> LLM[LLM Calling Module]
 
   RAG --> LLM
 
@@ -229,7 +206,7 @@ flowchart TD
 
 ---
 
-## 7️ Luồng Phân tích Dữ liệu Hệ thống
+## 6 Luồng Phân tích Dữ liệu Hệ thống
 
 Kiến trúc trích xuất dữ liệu và trực quan hóa qua PowerBI.
 
