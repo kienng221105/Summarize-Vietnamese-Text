@@ -2,451 +2,259 @@
 
 ---
 
-  
-
 ## 1️ Sơ đồ Kiến trúc Tổng thể
-
-  
 
 Mô tả sự giao tiếp tĩnh giữa các cụm thành phần chính. Dữ liệu phi cấu trúc đi vào kho Vector, dữ liệu có trạng thái (Stateful - User, History) đi vào Relational DB.
 
-  
-
 ```mermaid
-
 flowchart TD
 
-  Client[Headless Drupal AI] -->|REST API| API[FastAPI Backend / API Gateway]
+  Client[Headless Drupal AI] -->|REST API| API[FastAPI Backend / API Gateway]
 
-  API --> Auth[Xác thực]
+  API --> Auth[Xác thực]
+  API --> Admin[Quản trị viên]
+  API --> Core[Lõi AI]
 
-  API --> Admin[Quản trị viên]
+  Auth --> RDB[PostgreSQL/Users/Sessions]
+  Admin --> RDB
 
-  API --> Core[Lõi AI]
+  Core --> RDB
+  Core --> ExtProcessor[Xuất và xử lý document]
 
-  Auth --> RDB[PostgreSQL/Users/Sessions]
+  Core --> Options[Summary Options<br/>Length % / Output Format]
 
-  Admin --> RDB
+  Core --> Embed[Mô hình Embedding]
+  Embed --> VDB[(ChromaDB)]
 
-  Core --> RDB
-
-  Core --> ExtProcessor[Xuất và xử lý document]
-
-  Core --> Embed[Mô hình Embedding]
-
-  Embed --> VDB[(ChromaDB)]
-
-  Core --> ViT5[ViT5]
-
+  Core --> ViT5[ViT5]
 ```
 
-  
-
 ---
-
-  
 
 ## 2️ Sơ đồ Cơ sở Dữ liệu
 
-  
-
-Thiết kế CSDL SQL cốt lõi phục vụ tính năng lưu trữ lịch sử phân nhánh, đảm bảo duy trì được luồng hội thoại liên tục cho người dùng.
-
-  
+Thiết kế CSDL SQL phục vụ lưu trữ lịch sử tóm tắt.
 
 ```mermaid
-
 erDiagram
 
-  USERS ||--o{ CONVERSATIONS : "owns"
+  USERS ||--o{ CONVERSATIONS : "owns"
 
-  USERS {
+  USERS {
+    uuid id PK
+    string email
+    string password_hash
+    string role "USER or ADMIN"
+    datetime created_at
+    boolean is_active
+  }
 
-    uuid id PK
+  CONVERSATIONS ||--o{ MESSAGES : "contains"
 
-    string email
+  CONVERSATIONS {
+    uuid id PK
+    uuid user_id FK
+    string title
+    datetime updated_at
+  }
 
-    string password_hash
+  MESSAGES {
+    uuid id PK
+    uuid conversation_id FK
+    text content
+    datetime created_at
+  }
 
-    string role "USER or ADMIN"
+  CONVERSATIONS ||--o{ DOCUMENTS : "attaches"
 
-    datetime created_at
-
-    boolean is_active
-
-  }
-
-  CONVERSATIONS ||--o{ MESSAGES : "contains"
-
-  CONVERSATIONS {
-
-    uuid id PK
-
-    uuid user_id FK
-
-    string title
-
-    datetime updated_at
-
-  }
-
-  MESSAGES {
-
-    uuid id PK
-
-    uuid conversation_id FK
-
-    string sender_type "USER or AI"
-
-    text content
-
-    datetime created_at
-
-  }
-
-  CONVERSATIONS ||--o{ DOCUMENTS : "attaches"
-
-  DOCUMENTS {
-
-    uuid id PK
-
-    uuid conversation_id FK
-
-    string filename
-
-    string vector_collection_id
-
-  }
-
+  DOCUMENTS {
+    uuid id PK
+    uuid conversation_id FK
+    string filename
+    string vector_collection_id
+  }
 ```
 
-  
-
 ---
-
-  
 
 ## 3️ Luồng Người dùng Cơ bản
 
-  
-
-Áp dụng thêm luồng kiểm tra uỷ quyền (Authorization). User lấy lại context cũ hoặc tạo mới context thông qua phân loại đầu vào.
-
-  
+Luồng người dùng dành cho hệ thống tóm tắt văn bản.
 
 ```mermaid
-
 flowchart TD
 
-  U[User] --> L{Đã đăng nhập?}
+  U[User] --> L{Đã đăng nhập?}
 
-  L -->|Chưa| Login[Đăng nhập / Đăng ký]
+  L -->|Chưa| Login[Đăng nhập / Đăng ký]
 
-  L -->|Rồi| Main[Trang chủ Web UI]
+  L -->|Rồi| Main[Trang chủ Web UI]
 
-  Main --> Action{Chọn Thao tác}
+  Main --> Action{Chọn Thao tác}
 
-  Action -->|Xem Lịch sử| Hist[Tải lại Hội thoại cũ]
+  Action -->|Xem Lịch sử| Hist[Tải lại lịch sử tóm tắt]
 
-  Action -->|Text mới| T[Nhập / Dán đoạn Text]
+  Action -->|Text mới| T[Nhập / Dán đoạn Text]
 
-  Action -->|File mới| F[Upload Tài liệu]
+  Action -->|File mới| F[Upload Tài liệu]
 
-  T --> Process[Prompt]
+  T --> Options[Chọn Summary Options]
 
-  F --> Document[RAG]
+  F --> Document[RAG]
 
-  Process --> Gen[Sinh Tóm tắt]
+  Options --> Process[Prompt]
 
-  Document --> Gen
+  Document --> Process
 
-  Gen --> Save[(Lưu vào DB Lịch sử SQL)]
+  Process --> Gen[Sinh Tóm tắt]
 
-  Save --> UI[Hiển thị lên Giao diện]
+  Gen --> Save[(Lưu vào DB Lịch sử SQL)]
 
-  UI --> Chat[Chat tương tác Follow-up]
-
-  Chat --> Save
-
+  Save --> UI[Hiển thị lên Giao diện]
 ```
 
-  
-
 ---
-
-  
 
 ## 4️ Pipeline cho Prompt Engineering (Document ngắn)
 
-  
-
-Kiến trúc hệ thống dành cho Request nhỏ không cần VectorDB. Tối ưu độ trễ (Latency).
-
-  
+Kiến trúc dành cho request nhỏ không cần VectorDB.
 
 ```mermaid
-
 flowchart TD
 
-  A[Nhập Văn bản từ Frontend] --> B[Gắn Context / Prompt Template]
+  A[Nhập Văn bản từ Frontend]
 
-  B --> C[Finetuned ViT5]
+  A --> O[Summary Options<br/>Length % / Output Format]
 
-  C --> D[Văn bản Tóm tắt]
+  O --> B[Gắn Context / Prompt Template]
 
-  D --> E[(Lưu Log Message vào CSDL SQL)]
+  B --> C[Finetuned ViT5]
 
-  E --> F[Trả về Frontend UI]
+  C --> D[Văn bản Tóm tắt]
 
+  D --> E[(Lưu Log Message vào CSDL SQL)]
+
+  E --> F[Trả về Frontend UI]
 ```
 
-  
-
 ---
-
-  
 
 ## 5️ Pipeline cho RAG (Document dài)
 
-  
-
-Kiến trúc chuẩn cho luồng truy xuất thông tin phân mảnh với RAG (Retrieval-Augmented Generation). Đã tích hợp gắn mã mapping với History DB.
-
-  
+Kiến trúc chuẩn cho tóm tắt tài liệu dài.
 
 ```mermaid
-
 flowchart TD
 
-  %% Nhánh 1: Upload và lưu trữ
+  %% Upload
+  A[Upload file PDF / DOCX] --> B[Extractor - Rút trích Text]
 
-  A[Upload file PDF / DOCX] --> B[Extrator - Rút trích Text]
+  B --> C[Text Splitter - Chunking]
 
-  B --> C[Text Splitter - Chia nhỏ Chunking]
+  C --> D[Embedding Model]
 
-  C --> D[Embedding Model]
+  C --> E[(Vector DB - ChromaDB)]
 
-  C --> E[(Vector DB - ChromaDB)]
+  D --> E
 
-  D --> E
+  %% Summary Options
+  O[Summary Options] --> H[Prompt Template]
 
-  %% Nhánh 2: Truy vấn
+  %% Retrieval
+  E -. Similarity Search .-> F[Retriever]
 
-  Q[User Query / Câu hỏi] --> QE[Embedding Model]
+  F --> G[Top-k Relevant Chunks]
 
-  QE --> F[Retriever - Truy xuất Vector]
+  G --> I[Finetuned ViT5]
 
-  E -. So khớp tương đồng .-> F
+  H --> I
 
-  %% Nhánh 3: Hội tụ & Trả lời
+  %% Output
+  I --> J[Kết quả Tóm tắt]
 
-  F --> G[Các đoạn Text liên quan nhất top-k]
+  J --> K[(Lưu vào SQL DB)]
 
-  G --> I[Finetune ViT5/ViT5]
-
-  H[Prompt Template] --> I
-
-  Q --> H
-
-  I --> J[Kết quả Tóm tắt / Phản hồi]
-
-  J --> K[(Lưu bản ghi vào SQL DB)]
-
-  K --> L[Trả về kết quả tới Frontend UI]
-
+  K --> L[Trả về Frontend UI]
 ```
-  
 
 ---
-
-  
 
 ## 6️ Kiến trúc luồng Backend API
 
-  
-
-Sơ đồ phân định trách nhiệm các Router và Service của Backend theo chuẩn kiến trúc nguyên khối mô-đun hoá (Modular Monolith).
-
-  
-
 ```mermaid
-
 flowchart TD
 
-  UI[Frontend UI Web/Mobile] --> API[FastAPI Application]
+  UI[Frontend UI Web/Mobile]
 
-  API --> M{Router Switch Layer}
+  UI --> API[FastAPI Application]
 
-  M -->|/api/auth| AuthC[Authentication Router]
+  API --> M{Router Switch Layer}
 
-  M -->|/api/admin| AdminC[Dashboard/Admin Router]
+  M -->|/api/auth| AuthC[Authentication Router]
 
-  M -->|/api/chat| ChatC[Chat History Router]
+  M -->|/api/admin| AdminC[Dashboard/Admin Router]
 
-  M -->|/api/ai| AIC[AI & RAG Router]
+  M -->|/api/history| ChatC[Summary History Router]
 
-  AuthC --> PG[(SQL Database)]
+  M -->|/api/ai| AIC[AI & RAG Router]
 
-  AdminC --> PG
+  AuthC --> PG[(SQL Database)]
 
-  ChatC --> PG
+  AdminC --> PG
 
-  AIC --> File[Document Loader Worker]
+  ChatC --> PG
 
-  File --> Embed[Embedding Generator] --> VDB[(Chroma Vector DB)]
+  AIC --> File[Document Loader Worker]
 
-  VDB --> Ret[Similarity Retriever] --> RAG[RAG Service]
+  File --> Embed[Embedding Generator]
 
-  AIC --> Prompt[Standard Prompt Service]
+  Embed --> VDB[(Chroma Vector DB)]
 
-  Prompt --> LLM[LLM Calling Module]
+  VDB --> Ret[Similarity Retriever]
 
-  RAG --> LLM
+  Ret --> RAG[RAG Service]
 
-  LLM --> SaveDB[(Ghi lịch sử vào SQL)]
+  AIC --> Prompt[Prompt Builder<br/>Length % + Format]
 
-  SaveDB --> Res[Trả JSON Response]
+  Prompt --> LLM[LLM Calling Module]
 
-  Res --> UI
+  RAG --> LLM
 
-```
+  LLM --> SaveDB[(Ghi lịch sử vào SQL)]
 
-  
+  SaveDB --> Res[Trả JSON Response]
 
----
-
-  
-
-## 7️ Luồng Lưu trữ và Tái tạo Lịch sử Hội thoại (Chat History Flow)
-
-  
-
-Quy trình logic phía dưới UI để tái tạo lại hoàn toàn ngữ cảnh AI như lúc người dùng ngưng chat ở phiên làm việc trước.
-
-  
-
-```mermaid
-
-sequenceDiagram
-
-  actor User
-
-  participant Frontend as Web Client
-
-  participant API as Backend Server
-
-  participant DB as Relational DB
-
-  participant Chroma as Vector DB
-
-  
-
-  User->>Frontend: Mở Sidebar "Lịch sử cuộc gọi"
-
-  Frontend->>API: GET /api/chat/conversations
-
-  API->>DB: Query Conversations by user_id
-
-  DB-->>API: Array of Conversations
-
-  API-->>Frontend: Danh sách JSON
-
-  Frontend-->>User: Hiển thị Sidebar
-
-  
-
-  User->>Frontend: Chọn Conversation có đính kèm PDF
-
-  Frontend->>API: GET /api/chat/{id}/messages
-
-  API->>DB: Fetch Messages & Linked Document info
-
-  DB-->>API: Historical Messages + Vector ID
-
-  API-->>Frontend: Context Data Payload
-
-  Frontend-->>User: Hiển thị khung chat sẵn sàng
-
-  Note over API, Chroma: Hệ thống tự động trỏ RAG Search<br/>sang Vector Collection tương ứng của hội thoại này if needed.
-
-```
-
-  
-
----
-
-  
-
-## 8️ Luồng Quản trị Hệ thống
-
-  
-
-Bộ module dành riêng cho Quyền Admin quản trị người dùng, vận hành và phân tích feedback an toàn, khép kín.
-
-  
-
-```mermaid
-
-flowchart TD
-
-  Admin[Quản trị viên] --> Login[Đăng nhập Portal /auth/admin]
-
-  Login --> Dash[Bảng điều khiển - Admin Dashboard]
-
-  Dash --> Action{Chọn Phân hệ vụ}
-
-  Action -->|Thống kê Hệ thống| Metrics[Xem RPS, Latency, Data Logs]
-
-  Action -->|Quản lý Người dùng| Users[Tải Danh sách Người dùng]
-
-  Action -->|Quản lý Đánh giá| Review[Xem Feedback 1-5 Sao của User]
-
-  Users --> SelectU[Chọn User Cụ thể]
-
-  SelectU --> Modify{Thực thi Lệnh}
-
-  Modify -->|Ban / Unblock Tài khoản| UpdateDB[(Cập nhật cờ is_active vào SQL)]
-
-  Modify -->|Kiểm tra Quota Limit| ViewInfo[Truy vấn Traffic cá nhân]
-
-  UpdateDB --> Log[(Lưu Audit Log để truy vết)]
-
-  Log --> Dash
-
+  Res --> UI
 ```
 
 ---
 
-  
+## 7️ Luồng Phân tích Dữ liệu Hệ thống
 
-## 9️ Luồng Phân tích Dữ liệu Hệ thống(Sẽ cập nhật thêm)
-
-  
-
-Kiến trúc luồng trích xuất dữ liệu và trực quan hóa (Data Visualization) thông qua PowerBI. Phục vụ việc theo dõi các chỉ số quan trọng như: Usage Trend, Error Rate, Average Rating, và TPS/Latency.
-
-  
+Kiến trúc trích xuất dữ liệu và trực quan hóa qua PowerBI.
 
 ```mermaid
-
 flowchart TD
 
-  DB[("Cơ sở dữ liệu SQL\nChứa Users, Logs, Ratings")] --> Connector["PowerBI Data Connector\n(DirectQuery / Import)"]
+  DB[("Cơ sở dữ liệu SQL\nUsers, Logs, Ratings")]
 
-  Connector --> Transform["Power Query / Data Modeling"]
+  DB --> Connector["PowerBI Data Connector\n(DirectQuery / Import)"]
 
-  Transform --> Dataset["Dataset Nội bộ PowerBI\nĐã được chuẩn hóa"]
+  Connector --> Transform["Power Query / Data Modeling"]
 
-  Dataset --> Report{"Báo cáo & Dashboard"}
+  Transform --> Dataset["PowerBI Dataset"]
 
-  Report --> Usage["Usage Trend\nBiểu đồ Requests per day"]
+  Dataset --> Report{"Dashboard"}
 
-  Report --> Error["Error Rate\nTỷ lệ lỗi theo thời gian"]
+  Report --> Usage["Usage Trend"]
 
-  Report --> Rating["Average Rating\nPhân bổ 1-5 sao từ thẻ Feedback"]
+  Report --> Error["Error Rate"]
 
-  Report --> Perf["System Performance\nLatency < 5s, TPS"]
+  Report --> Rating["Average Rating"]
 
-  Admin["Admin / Data Analyst"] -->|Truy cập, Phân tích| Report
+  Report --> Perf["System Performance\nLatency / TPS"]
 
+  Admin["Admin / Data Analyst"] -->|Phân tích| Report
 ```
+
+---
