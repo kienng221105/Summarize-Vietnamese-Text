@@ -68,10 +68,19 @@ erDiagram
   CONVERSATIONS ||--o{ DOCUMENTS : "attaches"
 
   DOCUMENTS {
-    uuid id PK
-    uuid conversation_id FK
-    string filename
-    string vector_collection_id
+	uuid id PK  
+	uuid conversation_id FK  
+	  
+	string filename  
+	string file_type  
+	integer file_size  
+	  
+	string vector_collection_id  
+	  
+	integer chunk_count  
+	string embedding_model  
+	  
+	datetime created_at	   
   }
 ```
 
@@ -100,11 +109,9 @@ flowchart TD
 
   T --> Options[Chọn Summary Options]
 
-  F --> Document[RAG]
+  F --> Options[Chọn Summary Options]
 
-  Options --> Process[Xử lý AI]
-
-  Document --> Process
+  Options --> Process[Prompt]
 
   Process --> Gen[Sinh Tóm tắt]
 
@@ -121,37 +128,40 @@ flowchart TD
 
 
 ```mermaid
-flowchart TD
-
-  %% Upload
-  A[Upload file PDF / DOCX] --> B[Extractor - Rút trích Text]
-
-  B --> C[Text Splitter - Chunking]
-
-  C --> D[Embedding Model]
-
-  C --> E[(Vector DB - ChromaDB)]
-
-  D --> E
-
-  %% Summary Options
-  O[Summary Options] --> H[Summary Configuration]
-
-  %% Retrieval
-  E -. Similarity Search .-> F[Retriever]
-
-  F --> G[Top-k Relevant Chunks]
-
-  G --> I[Finetuned ViT5]
-
-  H --> I
-
-  %% Output
-  I --> J[Kết quả Tóm tắt]
-
-  J --> K[(Lưu vào SQL DB)]
-
-  K --> L[Trả về Frontend UI]
+flowchart TD  
+  
+%% Input  
+A[Nhập text / Upload file PDF / DOCX] --> B[Extractor - Rút trích Text]  
+  
+%% Chunking  
+B --> C[Text Splitter - Recursive Chunking]  
+  
+%% Embedding + Storage  
+C --> D[Embedding Model]  
+D --> E[(Vector Database)]  
+  
+%% User Options  
+O[Summary Options<br/>Length / Bullet / Paragraph] --> H[Prompt Template]  
+  
+%% Query  
+A --> Q[Query Embedding]  
+  
+%% Retrieval  
+Q --> F[Retriever - Similarity Search]  
+E --> F  
+  
+F --> G[Top-k Relevant Chunks]  
+  
+%% Generation  
+G --> I[Finetuned ViT5]  
+H --> I  
+  
+%% Output  
+I --> J[Kết quả Tóm tắt]  
+  
+J --> K[(Lưu vào SQL Database)]  
+  
+K --> L[Trả về Frontend UI]
 
 ```
 
@@ -159,49 +169,62 @@ flowchart TD
 ## 5 Kiến trúc luồng Backend API
 
 ```mermaid
-flowchart TD
-
-  UI[Frontend UI Web/Mobile]
-
-  UI --> API[FastAPI Application]
-
-  API --> M{Router Switch Layer}
-
-  M -->|/api/auth| AuthC[Authentication Router]
-
-  M -->|/api/admin| AdminC[Dashboard/Admin Router]
-
-  M -->|/api/history| ChatC[Summary History Router]
-
-  M -->|/api/ai| AIC[AI & RAG Router]
-
-  AuthC --> PG[(SQL Database)]
-
-  AdminC --> PG
-
-  ChatC --> PG
-
-  AIC --> File[Document Loader Worker]
-
-  File --> Embed[Embedding Generator]
-
-  Embed --> VDB[(Chroma Vector DB)]
-
-  VDB --> Ret[Similarity Retriever]
-
-  Ret --> RAG[RAG Service]
-
-  AIC --> Opt[Summary Options Processor]
-
-  Opt --> LLM[LLM Calling Module]
-
-  RAG --> LLM
-
-  LLM --> SaveDB[(Ghi lịch sử vào SQL)]
-
-  SaveDB --> Res[Trả JSON Response]
-
-  Res --> UI
+flowchart TD  
+  
+UI[Frontend Web/Mobile]  
+  
+UI --> API[FastAPI Application]  
+  
+API --> Router{Router Layer}  
+  
+Router -->|/api/auth| AuthC[Authentication Controller]  
+Router -->|/api/admin| AdminC[Admin Controller]  
+Router -->|/api/history| HistoryC[History Controller]  
+Router -->|/api/ai| AIC[AI & RAG Controller]  
+  
+AuthC --> PG[(SQL Database)]  
+AdminC --> PG  
+HistoryC --> PG  
+  
+  
+%% USER INPUT  
+AIC --> Input{Input Type}  
+  
+Input -->|Paste Text| TextInput[User Text]  
+Input -->|Upload File| Document[Document Loader]  
+  
+Document --> Extract[Text Extraction]  
+  
+Extract --> Content[Document Content]  
+TextInput --> Content  
+  
+  
+%% OPTIONS  
+Content --> Opt[Summary Options<br/>Length / Format]  
+  
+  
+%% RAG PIPELINE  
+Opt --> Splitter[Recursive Chunking]  
+  
+Splitter --> Embed[Embedding Generator]  
+  
+Embed --> VDB[(Vector Database)]  
+  
+Opt --> QueryEmbed[Query Embedding]  
+  
+QueryEmbed --> Retriever[Similarity Retriever]  
+  
+VDB --> Retriever  
+  
+Retriever --> RAG[RAG Service]  
+  
+RAG --> LLM[Finetuned ViT5]  
+  
+LLM --> SaveDB[(Lưu lịch sử SQL)]  
+  
+SaveDB --> Response[JSON Response]  
+  
+Response --> UI
 ```
 
 ---
