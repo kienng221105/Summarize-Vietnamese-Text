@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from uuid import UUID
 from datetime import datetime
 from typing import List, Optional
@@ -13,7 +13,7 @@ class MessageCreate(MessageBase):
 class MessageResponse(MessageBase):
     id: UUID
     conversation_id: UUID
-    create_at: datetime
+    created_at: datetime
 
     class Config:
         from_attributes = True
@@ -29,7 +29,7 @@ class DocumentResponse(DocumentBase):
     vector_collection_id: str
     chunk_count: int
     embedding_model: str
-    create_at: datetime
+    created_at: datetime
 
     class Config:
         from_attributes = True
@@ -39,14 +39,14 @@ class ConversationBase(BaseModel):
     title: str
 
 class ConversationCreate(ConversationBase):
-    user_id: UUID
+    pass
 
 class ConversationResponse(ConversationBase):
     id: UUID
     user_id: UUID
-    update_at: datetime
-    messages: List[MessageResponse] = []
-    documents: List[DocumentResponse] = []
+    updated_at: datetime
+    messages: List[MessageResponse] = Field(default_factory=list)
+    documents: List[DocumentResponse] = Field(default_factory=list)
 
     class Config:
         from_attributes = True
@@ -57,6 +57,17 @@ class SummarizeRequest(BaseModel):
     custom_content: Optional[str] = None
     max_length: Optional[int] = 500
 
+    @model_validator(mode="after")
+    def check_input(self):
+        if not self.document_id and not self.custom_content:
+            raise ValueError("Must provide document_id or custom_content")
+        return self
+
 class SummarizeResponse(BaseModel):
-    summary: str
-    original_id: Optional[UUID] = None
+    id: UUID
+    conversation_id: UUID
+    content: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

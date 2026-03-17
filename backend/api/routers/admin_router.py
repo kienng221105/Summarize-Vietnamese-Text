@@ -6,3 +6,5 @@ router = APIRouter()
 def read_admin():
     return {"message": "Admin endpoint"}
 
+
+

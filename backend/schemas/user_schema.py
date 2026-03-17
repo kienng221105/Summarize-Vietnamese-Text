@@ -6,7 +6,7 @@ from typing import Optional
 class UserBase(BaseModel):
     email: EmailStr
     role: Optional[str] = "user"
-    isactive: Optional[bool] = True
+    is_active: Optional[bool] = True
 
 class UserCreate(UserBase):
     password: str
@@ -19,7 +19,7 @@ class UserUpdate(BaseModel):
 
 class UserResponse(UserBase):
     id: UUID
-    create_at: datetime
+    created_at: datetime
 
     class Config:
         from_attributes = True

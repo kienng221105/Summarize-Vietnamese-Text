@@ -12,7 +12,7 @@ class Document(Base):
     vector_collection_id = Column(String, nullable=False)
     chunk_count = Column(Integer, nullable=False)
     embedding_model = Column(String, nullable=False)
-    create_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, nullable=False)
     
     #relationships
     conversation = relationship("Conversation", back_populates="documents")

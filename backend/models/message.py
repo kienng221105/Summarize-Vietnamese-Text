@@ -9,7 +9,7 @@ class Message(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, index=True)
     conversation_id = Column(UUID(as_uuid=True),ForeignKey("conversations.id") ,nullable=False)
     content = Column(Text, nullable=False)
-    create_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, nullable=False)
     
     #relationships
     conversation = relationship("Conversation", back_populates="messages")

@@ -10,8 +10,10 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
     role = Column(String, default="user", nullable=False)
-    create_at = Column(DateTime, nullable=False)
-    isactive = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
     
     #relationships
     conversations = relationship("Conversation", back_populates="user")
+    user_activities = relationship("UserActivity", back_populates="user")
+    ratings = relationship("Rating", back_populates="user")
