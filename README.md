@@ -50,6 +50,8 @@ erDiagram
   }
 
   CONVERSATIONS ||--o{ MESSAGES : "contains"
+  CONVERSATIONS ||--o{ DOCUMENTS : "attaches"
+  CONVERSATIONS ||--o{ RATINGS : "receives"
 
   CONVERSATIONS {
     uuid id PK
@@ -65,22 +67,52 @@ erDiagram
     datetime created_at
   }
 
-  CONVERSATIONS ||--o{ DOCUMENTS : "attaches"
-
   DOCUMENTS {
-	uuid id PK  
-	uuid conversation_id FK  
-	  
-	string filename  
-	string file_type  
-	integer file_size  
-	  
-	string vector_collection_id  
-	  
-	integer chunk_count  
-	string embedding_model  
-	  
-	datetime created_at	   
+    uuid id PK  
+    uuid conversation_id FK  
+    
+    string filename  
+    string file_type  
+    integer file_size  
+    
+    string vector_collection_id  
+    
+    integer chunk_count  
+    string embedding_model  
+    
+    datetime created_at
+  }
+
+  USERS ||--o{ RATINGS : "gives"
+
+  RATINGS {
+    uuid id PK
+    uuid user_id FK
+    uuid conversation_id FK
+    integer rating
+    text feedback
+    datetime created_at
+  }
+
+  SYSTEM_LOGS {
+    uuid id PK
+    string endpoint
+    string method
+    integer status_code
+    integer latency_ms
+    text error_message
+    datetime created_at
+  }
+
+  USERS ||--o{ USER_ACTIVITY : "performs"
+
+  USER_ACTIVITY {
+    uuid id PK
+    uuid user_id FK
+    string action
+    string resource_type
+    uuid resource_id
+    datetime created_at
   }
 ```
 
@@ -118,6 +150,10 @@ flowchart TD
   Gen --> Save[(Lưu vào DB Lịch sử SQL)]
 
   Save --> UI[Hiển thị lên Giao diện]
+  UI --> Rate{User đánh giá?}  
+  
+Rate -->|Yes| Rating[(Lưu Rating)]  
+Rate -->|No| End[Kết thúc]
 
 ```
 
