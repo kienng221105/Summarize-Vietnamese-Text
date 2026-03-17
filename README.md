@@ -14,10 +14,10 @@ flowchart TD
   API --> Auth[Xác thực]
   API --> Admin[Quản trị viên]
   API --> Core[Lõi AI]
-
+  API --> History
   Auth --> RDB[PostgreSQL/Users/Sessions]
   Admin --> RDB
-
+  History --> RDB
   Core --> RDB
   Core --> ExtProcessor[Xuất và xử lý document]
 
