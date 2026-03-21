@@ -40,6 +40,8 @@ Thiết kế CSDL SQL phục vụ lưu trữ lịch sử tóm tắt.
 erDiagram
 
   USERS ||--o{ CONVERSATIONS : "owns"
+  USERS ||--o{ RATINGS : "gives"
+  USERS ||--o{ USER_ACTIVITIES : "performs"
 
   USERS {
     uuid id PK
@@ -63,25 +65,55 @@ erDiagram
     uuid id PK
     uuid conversation_id FK
     text content
+    boolean is_user
     datetime created_at
   }
 
   CONVERSATIONS ||--o{ DOCUMENTS : "attaches"
+  CONVERSATIONS ||--o| RATINGS : "receives"
 
   DOCUMENTS {
-	uuid id PK  
-	uuid conversation_id FK  
-	  
-	string filename  
-	string file_type  
-	integer file_size  
-	  
-	string vector_collection_id  
-	  
-	integer chunk_count  
-	string embedding_model  
-	  
-	datetime created_at	   
+ uuid id PK  
+ uuid conversation_id FK  
+   
+ string filename  
+ string file_type  
+ string file_path
+   
+ string vector_collection_id  
+   
+ integer chunk_count  
+ string embedding_model  
+   
+ datetime created_at    
+  }
+
+  RATINGS {
+    uuid id PK
+    uuid user_id FK
+    uuid conversation_id FK
+    integer rating
+    text feedback
+    datetime created_at
+  }
+
+  SYSTEM_LOGS {
+    uuid id PK
+    string endpoint
+    string method
+    integer status_code
+    integer response_time
+    uuid user_id FK
+    text error_message
+    datetime created_at
+  }
+
+  USER_ACTIVITIES {
+    uuid id PK
+    uuid user_id FK
+    string action
+    text details
+    datetime created_at
   }
 ```
 
@@ -124,9 +156,7 @@ flowchart TD
 
 ---
 
-
 ## 4 Pipeline cho RAG
-
 
 ```mermaid
 flowchart TD  
@@ -167,6 +197,7 @@ K --> L[Trả về Frontend UI]
 ```
 
 ---
+
 ## 5 Kiến trúc luồng Backend API
 
 ```mermaid
@@ -182,10 +213,12 @@ Router -->|/api/auth| AuthC[Authentication Controller]
 Router -->|/api/admin| AdminC[Admin Controller]  
 Router -->|/api/history| HistoryC[History Controller]  
 Router -->|/api/ai| AIC[AI & RAG Controller]  
+Router -->|/api/rating| RatingC[Rating Controller]
   
 AuthC --> PG[(SQL Database)]  
 AdminC --> PG  
 HistoryC --> PG  
+RatingC --> PG  
   
   
 %% USER INPUT  
