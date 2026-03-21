@@ -1,7 +1,10 @@
 # Ignore .env files
 .env
 
-# Python
+# Ignore __pycache__
 __pycache__/
 *.pyc
 *.pyo
+
+# Ignore data
+data/
