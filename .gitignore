@@ -1,2 +1,7 @@
 # Ignore .env files
 .env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
