@@ -15,6 +15,10 @@ flowchart TD
   API --> Admin[Quản trị viên]
   API --> Core[Lõi AI]
   API --> History
+<<<<<<< HEAD
+=======
+
+>>>>>>> test1
   Auth --> RDB[PostgreSQL/Users/Sessions]
   Admin --> RDB
   History --> RDB
@@ -39,6 +43,8 @@ Thiết kế CSDL SQL phục vụ lưu trữ lịch sử tóm tắt.
 erDiagram
 
   USERS ||--o{ CONVERSATIONS : "owns"
+  USERS ||--o{ RATINGS : "gives"
+  USERS ||--o{ USER_ACTIVITIES : "performs"
 
   USERS {
     uuid id PK
@@ -64,9 +70,11 @@ erDiagram
     uuid id PK
     uuid conversation_id FK
     text content
+    boolean is_user
     datetime created_at
   }
 
+<<<<<<< HEAD
   DOCUMENTS {
     uuid id PK  
     uuid conversation_id FK  
@@ -85,6 +93,27 @@ erDiagram
 
   USERS ||--o{ RATINGS : "gives"
 
+=======
+  CONVERSATIONS ||--o{ DOCUMENTS : "attaches"
+  CONVERSATIONS ||--o| RATINGS : "receives"
+
+  DOCUMENTS {
+ uuid id PK  
+ uuid conversation_id FK  
+   
+ string filename  
+ string file_type  
+ string file_path
+   
+ string vector_collection_id  
+   
+ integer chunk_count  
+ string embedding_model  
+   
+ datetime created_at    
+  }
+
+>>>>>>> test1
   RATINGS {
     uuid id PK
     uuid user_id FK
@@ -99,11 +128,17 @@ erDiagram
     string endpoint
     string method
     integer status_code
+<<<<<<< HEAD
     integer latency_ms
+=======
+    integer response_time
+    uuid user_id FK
+>>>>>>> test1
     text error_message
     datetime created_at
   }
 
+<<<<<<< HEAD
   USERS ||--o{ USER_ACTIVITY : "performs"
 
   USER_ACTIVITY {
@@ -112,6 +147,13 @@ erDiagram
     string action
     string resource_type
     uuid resource_id
+=======
+  USER_ACTIVITIES {
+    uuid id PK
+    uuid user_id FK
+    string action
+    text details
+>>>>>>> test1
     datetime created_at
   }
 ```
@@ -159,9 +201,7 @@ Rate -->|No| End[Kết thúc]
 
 ---
 
-
 ## 4 Pipeline cho RAG
-
 
 ```mermaid
 flowchart TD  
@@ -202,6 +242,7 @@ K --> L[Trả về Frontend UI]
 ```
 
 ---
+
 ## 5 Kiến trúc luồng Backend API
 
 ```mermaid
@@ -217,10 +258,12 @@ Router -->|/api/auth| AuthC[Authentication Controller]
 Router -->|/api/admin| AdminC[Admin Controller]  
 Router -->|/api/history| HistoryC[History Controller]  
 Router -->|/api/ai| AIC[AI & RAG Controller]  
+Router -->|/api/rating| RatingC[Rating Controller]
   
 AuthC --> PG[(SQL Database)]  
 AdminC --> PG  
 HistoryC --> PG  
+RatingC --> PG  
   
   
 %% USER INPUT  
