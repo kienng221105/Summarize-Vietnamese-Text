@@ -15,10 +15,7 @@ flowchart TD
   API --> Admin[Quản trị viên]
   API --> Core[Lõi AI]
   API --> History
-<<<<<<< HEAD
-=======
 
->>>>>>> test1
   Auth --> RDB[PostgreSQL/Users/Sessions]
   Admin --> RDB
   History --> RDB
@@ -56,8 +53,6 @@ erDiagram
   }
 
   CONVERSATIONS ||--o{ MESSAGES : "contains"
-  CONVERSATIONS ||--o{ DOCUMENTS : "attaches"
-  CONVERSATIONS ||--o{ RATINGS : "receives"
 
   CONVERSATIONS {
     uuid id PK
@@ -74,26 +69,6 @@ erDiagram
     datetime created_at
   }
 
-<<<<<<< HEAD
-  DOCUMENTS {
-    uuid id PK  
-    uuid conversation_id FK  
-    
-    string filename  
-    string file_type  
-    integer file_size  
-    
-    string vector_collection_id  
-    
-    integer chunk_count  
-    string embedding_model  
-    
-    datetime created_at
-  }
-
-  USERS ||--o{ RATINGS : "gives"
-
-=======
   CONVERSATIONS ||--o{ DOCUMENTS : "attaches"
   CONVERSATIONS ||--o| RATINGS : "receives"
 
@@ -113,7 +88,6 @@ erDiagram
  datetime created_at    
   }
 
->>>>>>> test1
   RATINGS {
     uuid id PK
     uuid user_id FK
@@ -128,32 +102,17 @@ erDiagram
     string endpoint
     string method
     integer status_code
-<<<<<<< HEAD
-    integer latency_ms
-=======
     integer response_time
     uuid user_id FK
->>>>>>> test1
     text error_message
     datetime created_at
   }
 
-<<<<<<< HEAD
-  USERS ||--o{ USER_ACTIVITY : "performs"
-
-  USER_ACTIVITY {
-    uuid id PK
-    uuid user_id FK
-    string action
-    string resource_type
-    uuid resource_id
-=======
   USER_ACTIVITIES {
     uuid id PK
     uuid user_id FK
     string action
     text details
->>>>>>> test1
     datetime created_at
   }
 ```
@@ -192,10 +151,6 @@ flowchart TD
   Gen --> Save[(Lưu vào DB Lịch sử SQL)]
 
   Save --> UI[Hiển thị lên Giao diện]
-  UI --> Rate{User đánh giá?}  
-  
-Rate -->|Yes| Rating[(Lưu Rating)]  
-Rate -->|No| End[Kết thúc]
 
 ```
 
