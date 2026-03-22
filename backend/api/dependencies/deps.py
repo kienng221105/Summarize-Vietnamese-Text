@@ -44,7 +44,7 @@ def get_current_active_user(current_user: User = Depends(get_current_user)) -> U
     Kiểm tra người dùng hiện tại có đang hoạt động hay không.
     """
     if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Người dùng không hoạt động")
+        raise HTTPException(status_code=400, detail="Người dùng bị khóa")
     return current_user
 
 def get_current_admin_user(current_user: User = Depends(get_current_active_user)) -> User:

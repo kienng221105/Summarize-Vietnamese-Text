@@ -29,7 +29,14 @@ def post_summarize(request: SummarizeRequest, db: Session = Depends(get_db), cur
     # 2. Tạo tin nhắn người dùng
     try:
         print("DEBUG: Chuẩn bị nội dung tóm tắt")
-        summary_content = "Kết quả tóm tắt giả lập cho: " + (request.custom_content[:50] if request.custom_content else "tài liệu")
+        from backend.utils.helpers import is_text_too_short
+        
+        # Nếu người dùng gửi text trực tiếp và đoạn text đó quá ngắn
+        if request.custom_content and is_text_too_short(request.custom_content):
+            print("DEBUG: Văn bản quá ngắn, trả về nguyên bản (bypass AI).")
+            summary_content = request.custom_content
+        else:
+            summary_content = "Kết quả tóm tắt giả lập cho: " + (request.custom_content[:50] if request.custom_content else "tài liệu")
         print(f"DEBUG: Gọi hàm tạo tin nhắn")
         msg = summarize_service.create_message(db, conv.id, summary_content)
         print(f"DEBUG: Tạo tin nhắn thành công. ID: {msg.id}")

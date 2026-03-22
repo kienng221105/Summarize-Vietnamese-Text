@@ -12,16 +12,13 @@ app = FastAPI(
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    print("FATAL ERROR CAUGHT BY GLOBAL HANDLER:")
+    print(f"Lỗi hệ thống (500) tại {request.url.path}: {str(exc)}")
     traceback.print_exc()
-    import backend.database.models as models
-    print(f"MODELS DIR: {dir(models)}")
+    # Không trả về traceback hoặc dữ liệu nội bộ cho client để bảo mật
     return JSONResponse(
         status_code=500,
         content={
-            "detail": f"INTERNAL ERROR: {str(exc)}", 
-            "models_dir": dir(models),
-            "traceback": traceback.format_exc()
+            "detail": "Internal Server Error. Please try again later."
         },
     )
 
@@ -33,9 +30,4 @@ app.include_router(rating_router.router, prefix="/rating", tags=["Rating"])
 
 @app.get("/")
 def read_root():
-    """
-    Endpoint mặc định kiểm tra trạng thái API.
-    - Input: Không có.
-    - Output: Thông điệp chào mừng.
-    """
     return {"message": "Welcome to the Vietnamese Text Summaryizer API!"}
