@@ -15,11 +15,13 @@ flowchart TD
   API --> Admin[Quản trị viên]
   API --> Core[Lõi AI]
   API --> History
+  API --> Rating
 
   Auth --> RDB[PostgreSQL/Users/Sessions]
   Admin --> RDB
   History --> RDB
   Core --> RDB
+  Rating --> RDB
   Core --> ExtProcessor[Xuất và xử lý document]
 
   Core --> Options[Summary Options<br/>Length % / Output Format]
