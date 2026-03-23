@@ -161,39 +161,53 @@ flowchart TD
 ## 4 Pipeline cho RAG
 
 ```mermaid
-flowchart TD  
-  
-%% Input  
-A[Nhập text / Upload file PDF / DOCX] --> B[Extractor - Rút trích Text]  
-  
-%% Chunking  
-B --> C[Text Splitter - Recursive Chunking]  
-  
-%% Embedding + Storage  
-C --> D[Embedding Model]  
-D --> E[(Vector Database)]  
-  
-%% User Options  
-O[Summary Options<br/>Length / Bullet / Paragraph] --> H[Prompt Template]  
-  
-%% Query  
-A --> Q[Query Embedding]  
-  
-%% Retrieval  
-Q --> F[Retriever - Similarity Search]  
-E --> F  
-  
-F --> G[Top-k Relevant Chunks]  
-  
-%% Generation  
-G --> I[Finetuned ViT5]  
-H --> I  
-  
-%% Output  
-I --> J[Kết quả Tóm tắt]  
-  
-J --> K[(Lưu vào SQL Database)]  
-  
+flowchart TD  
+
+%% Input  
+
+A[Nhập text / Upload file PDF / DOCX] --> B[Extractor - Rút trích Text]  
+
+%% Chunking  
+
+
+B --> Clean[Làm sạch dữ liệu] 
+
+Clean --> C[Chunking dữ liệu]  
+
+%% Embedding + Storage  
+
+C --> D[Mô hình embedding]  
+
+D --> E[(Vector Database)]  
+
+%% User Options  
+
+O[Lựa chọn tóm tắt<br/>Length / Bullet / Paragraph] --> H[Khuôn mẫu câu lệnh]  
+
+%% Query  
+
+A --> Q[Query Embedding]  
+
+%% Retrieval  
+
+Q --> F[Retriever - Tìm kiếm tương đồng]  
+
+E --> F  
+
+F --> G[Top k đoạn liên quan nhất]  
+
+%% Generation  
+
+G --> I[Finetuned ViT5]  
+
+H --> I  
+
+%% Output  
+
+I --> J[Kết quả Tóm tắt]  
+
+J --> K[(Lưu vào SQL Database)]  
+
 K --> L[Trả về Frontend UI]
 
 ```
