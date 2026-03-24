@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài đặt tài khoản - SummVi</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css"> <!-- Base styles -->
+    <link rel="stylesheet" href="settings.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <h2>SummVi</h2>
+            </div>
+
+            <a href="index.html" class="nav-link-btn" style="text-decoration:none;">
+                <button class="new-chat-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Về trình Tóm tắt
+                </button>
+            </a>
+
+            <div class="settings-nav">
+                <p class="section-title">Quản lý</p>
+                <ul class="history-list">
+                    <li class="history-item active"><i class="fa-regular fa-user"></i> Cài đặt chung</li>
+                </ul>
+            </div>
+
+            <div class="nav-section" style="margin-top:auto; flex: 0;"></div>
+
+            <div class="user-profile" onclick="window.location.href='login.html'">
+                <i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--text-muted); margin-left:10px;"></i>
+                <div class="user-info" style="margin-left:8px;">
+                    <p class="user-name" style="color:#ef4444;">Đăng xuất</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="breadcrumb">
+                    <h2>Cài đặt chung</h2>
+                </div>
+            </header>
+
+            <div class="workspace settings-workspace">
+                <div class="settings-card" style="max-width: 500px; margin: 0 auto;">
+                    <!-- Profile Picture -->
+                    <div class="profile-header">
+                        <img src="https://ui-avatars.com/api/?name=Kien+Nguyen&background=eff6ff&color=4f46e5&size=120"
+                            alt="Avatar" class="profile-avatar">
+                        <div class="profile-actions">
+                            <h3 style="margin-bottom:8px;">Ảnh đại diện</h3>
+                            <button class="btn btn-primary-outline">Thay đổi ảnh</button>
+                        </div>
+                    </div>
+
+                    <hr class="separator">
+
+                    <!-- Personal Info Form -->
+                    <form class="settings-form" onsubmit="event.preventDefault(); alert('Đã lưu cài đặt!');">
+                        <div class="form-group">
+                            <label>Họ tên</label>
+                            <input type="text" value="Nguyễn Kiên">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Địa chỉ Email</label>
+                            <input type="email" value="kien.nguyen@example.com" readonly
+                                style="background-color: var(--border-light); color: var(--text-muted);">
+                        </div>
+
+                        <div class="form-actions" style="margin-top: 8px;">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Lưu thay đổi</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

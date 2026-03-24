@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - SummVi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="auth.css">
+</head>
+
+<body>
+    <div class="auth-container">
+        <!-- Left Side: Visuals/Marketing -->
+        <div class="auth-banner">
+            <div class="banner-content">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <h2>SummVi</h2>
+                </div>
+                <h1>Tóm tắt hàng ngàn trang tài liệu<br>chưa bao giờ dễ đến thế.</h1>
+                <p>Nền tảng sử dụng mô hình ViT5 và RAG Pipeline độc quyền, giúp trích xuất và tối ưu hóa thông tin
+                    tiếng Việt chính xác tới 98%.</p>
+
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <h3>10x</h3>
+                        <p>Nhanh hơn</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>98%</h3>
+                        <p>Độ chính xác</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>+50k</h3>
+                        <p>Tài liệu</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Decorative Elements -->
+            <div class="circle-decoration circle-1"></div>
+            <div class="circle-decoration circle-2"></div>
+        </div>
+
+        <!-- Right Side: Login Form -->
+        <div class="auth-form-wrapper">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Chào mừng trở lại! 👋</h2>
+                    <p>Vui lòng đăng nhập để tiếp tục công việc của bạn.</p>
+                </div>
+
+                <form action="index.html" class="auth-form"
+                    onsubmit="event.preventDefault(); window.location.href='index.html';">
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-envelope"></i>
+                            <input type="email" id="email" placeholder="kien.nguyen@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Mật khẩu</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="password" placeholder="••••••••" required>
+                            <i class="fa-regular fa-eye-slash toggle-pw"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input type="checkbox">
+                            <span class="checkmark"></span>
+                            Ghi nhớ tôi
+                        </label>
+                        <a href="#" class="forgot-pw">Quên mật khẩu?</a>
+                    </div>
+
+                    <button type="submit" class="auth-btn">Đăng nhập ngay</button>
+                </form>
+
+                <p class="auth-footer">
+                    Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

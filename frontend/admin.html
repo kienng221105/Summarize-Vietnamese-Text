@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang quản trị - SummVi</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar admin-sidebar">
+            <div class="logo-area">
+                <div class="logo-icon admin-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <h2>SummVi <span class="badge">Admin</span></h2>
+            </div>
+
+            <ul class="admin-nav">
+                <li class="nav-item active">
+                    <i class="fa-solid fa-chart-pie"></i> Tổng quan
+                </li>
+                <li class="nav-item">
+                    <i class="fa-solid fa-users"></i> Quản lý người dùng
+                </li>
+                <li class="nav-item">
+                    <i class="fa-solid fa-server"></i> Logs & Hiệu suất
+                </li>
+                <li class="nav-item">
+                    <i class="fa-solid fa-brain"></i> Giám sát ViT5 Model
+                </li>
+            </ul>
+
+            <div class="user-profile admin-profile">
+                <img src="https://ui-avatars.com/api/?name=Admin+Kien&background=1e293b&color=fff" alt="Avatar"
+                    class="avatar">
+                <div class="user-info">
+                    <p class="user-name">Kiên Nguyễn</p>
+                    <p class="user-plan text-danger">Quản trị viên Hệ thống</p>
+                </div>
+                <a href="index.html" title="Về trang người dùng"><i
+                        class="fa-solid fa-arrow-right-from-bracket settings-icon"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="breadcrumb">
+                    <h2>Bảng điều khiển hệ thống</h2>
+                </div>
+                <div class="topbar-actions">
+                    <div class="status-indicator">
+                        <span class="dot pulse"></span>
+                        <span>Hệ thống bình thường</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="workspace">
+                <!-- Stats Row -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon b-blue"><i class="fa-solid fa-users"></i></div>
+                            <span class="trend positive"><i class="fa-solid fa-arrow-up"></i> 12%</span>
+                        </div>
+                        <h3>1,245</h3>
+                        <p>Tổng người dùng</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon b-purple"><i class="fa-solid fa-bolt"></i></div>
+                            <span class="trend positive"><i class="fa-solid fa-arrow-up"></i> 8%</span>
+                        </div>
+                        <h3>45,912</h3>
+                        <p>Lượt tóm tắt (Tuần)</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon b-orange"><i class="fa-solid fa-microchip"></i></div>
+                            <span class="trend negative"><i class="fa-solid fa-arrow-down"></i> 2%</span>
+                        </div>
+                        <h3>850ms</h3>
+                        <p>Độ trễ trung bình ViT5</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon b-green"><i class="fa-solid fa-check-double"></i></div>
+                            <span class="trend neutral">0%</span>
+                        </div>
+                        <h3>99.8%</h3>
+                        <p>Tỷ lệ rỗi (Uptime)</p>
+                    </div>
+                </div>
+
+                <!-- Charts & Activity Row -->
+                <div class="dashboard-row">
+                    <div class="panel chart-panel">
+                        <div class="panel-header">
+                            <h3>Lưu lượng API & Sử dụng Model</h3>
+                            <div class="panel-actions">
+                                <select class="filter-select">
+                                    <option>7 ngày qua</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mock-chart">
+                            <!-- CSS pure Bar Chart Mockup -->
+                            <div class="bar-col">
+                                <div class="bar b-purple" style="height: 40%"></div><span class="label">T2</span>
+                            </div>
+                            <div class="bar-col">
+                                <div class="bar b-purple" style="height: 60%"></div><span class="label">T3</span>
+                            </div>
+                            <div class="bar-col">
+                                <div class="bar b-purple" style="height: 45%"></div><span class="label">T4</span>
+                            </div>
+                            <div class="bar-col">
+                                <div class="bar b-purple" style="height: 80%"></div><span class="label">T5</span>
+                            </div>
+                            <div class="bar-col">
+                                <div class="bar b-purple" style="height: 35%"></div><span class="label">T6</span>
+                            </div>
+                            <div class="bar-col">
+                                <div class="bar b-purple" style="height: 90%"></div><span class="label">T7</span>
+                            </div>
+                            <div class="bar-col">
+                                <div class="bar b-purple" style="height: 50%"></div><span class="label">CN</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel list-panel">
+                        <div class="panel-header">
+                            <h3>Tài nguyên phần cứng</h3>
+                        </div>
+                        <div class="resource-list">
+                            <div class="res-item">
+                                <div class="res-info"><span>GPU Usage (A100)</span> <span>78%</span></div>
+                                <div class="progress-bg">
+                                    <div class="progress b-orange" style="width: 78%"></div>
+                                </div>
+                            </div>
+                            <div class="res-item">
+                                <div class="res-info"><span>RAM Server</span> <span>45%</span></div>
+                                <div class="progress-bg">
+                                    <div class="progress b-blue" style="width: 45%"></div>
+                                </div>
+                            </div>
+                            <div class="res-item">
+                                <div class="res-info"><span>ChromaDB Storage</span> <span>12GB / 50GB</span></div>
+                                <div class="progress-bg">
+                                    <div class="progress b-green" style="width: 24%"></div>
+                                </div>
+                            </div>
+                            <div class="res-item">
+                                <div class="res-info"><span>PostgreSQL Storage</span> <span>68%</span></div>
+                                <div class="progress-bg">
+                                    <div class="progress b-purple" style="width: 68%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Logs Table -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>System Logs Cập nhật</h3>
+                        <button class="btn-outline">Xem tất cả</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Trạng thái</th>
+                                    <th>Endpoint API</th>
+                                    <th>Phương thức</th>
+                                    <th>Độ trễ</th>
+                                    <th>User ID</th>
+                                    <th>Thời gian</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="status-badge success">200 OK</span></td>
+                                    <td><code>/api/ai/summarize</code></td>
+                                    <td>POST</td>
+                                    <td>1.2s</td>
+                                    <td>usr_8xk9...</td>
+                                    <td>Vừa xong</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="status-badge success">200 OK</span></td>
+                                    <td><code>/api/history</code></td>
+                                    <td>GET</td>
+                                    <td>45ms</td>
+                                    <td>usr_2qm1...</td>
+                                    <td>1 phút trước</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="status-badge error">500 ERR</span></td>
+                                    <td><code>/api/ai/upload</code></td>
+                                    <td>POST</td>
+                                    <td>3.5s</td>
+                                    <td>usr_5zt7...</td>
+                                    <td>5 phút trước</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="status-badge success">201 CREATED</span></td>
+                                    <td><code>/api/auth/register</code></td>
+                                    <td>POST</td>
+                                    <td>120ms</td>
+                                    <td>usr_new2...</td>
+                                    <td>12 phút trước</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SummVi - Trợ lý AI tóm tắt văn bản</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <h2>SummVi</h2>
+            </div>
+
+            <button class="new-chat-btn">
+                <i class="fa-solid fa-plus"></i> Tạo tóm tắt mới
+            </button>
+
+            <div class="nav-section">
+                <p class="section-title">Gần đây</p>
+                <ul class="history-list">
+                    <li class="history-item active">
+                        <i class="fa-regular fa-message"></i>
+                        <span>Báo cáo doanh thu quý 3...</span>
+                    </li>
+                    <li class="history-item">
+                        <i class="fa-regular fa-file-pdf"></i>
+                        <span>Tai_lieu_hop_dong_A...</span>
+                    </li>
+                    <li class="history-item">
+                        <i class="fa-regular fa-message"></i>
+                        <span>Tin tức công nghệ AI...</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="user-profile" onclick="window.location.href='settings.html'">
+                <img src="https://ui-avatars.com/api/?name=Kien+Nguyen&background=eff6ff&color=4f46e5" alt="User Avatar"
+                    class="avatar">
+                <div class="user-info">
+                    <p class="user-name">Kiên Nguyễn</p>
+                    <p class="user-plan"><a href="admin.html" style="color:var(--text-muted); text-decoration:none;">Gói
+                            Premium / Admin</a></p>
+                </div>
+                <i class="fa-solid fa-gear settings-icon"></i>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar (Mobile mainly, but useful for extra tools) -->
+            <header class="topbar">
+                <div class="breadcrumb">
+                    <span>Tóm tắt mới</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="icon-btn" title="Trợ giúp"><i class="fa-regular fa-circle-question"></i></button>
+                    <button class="icon-btn" title="Thông báo"><i class="fa-regular fa-bell"></i></button>
+                </div>
+            </header>
+
+            <div class="workspace">
+                <!-- Header Title -->
+                <div class="workspace-header">
+                    <h1>Sức mạnh AI, <span class="text-gradient">tóm gọn</span> mọi văn bản.</h1>
+                    <p>Nhập văn bản, đường dẫn hoặc tải tài liệu lên để ViT5 Model phân tích và trích xuất ý chính ngay
+                        lập tức.</p>
+                </div>
+
+                <!-- Input Area -->
+                <div class="editor-card">
+                    <div class="editor-tabs">
+                        <button class="tab-btn active" data-target="text-input">
+                            <i class="fa-solid fa-align-left"></i> Văn bản
+                        </button>
+                        <button class="tab-btn" data-target="file-upload">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Tải tài liệu
+                        </button>
+                        <button class="tab-btn" data-target="url-input">
+                            <i class="fa-solid fa-link"></i> Đường dẫn URL
+                        </button>
+                    </div>
+
+                    <div class="editor-body">
+                        <!-- Panel: Text Input -->
+                        <div id="text-input" class="input-panel active">
+                            <textarea
+                                placeholder="Dán văn bản tiếng Việt dài của bạn vào đây (tối thiểu 50 từ)..."></textarea>
+                            <div class="textarea-footer">
+                                <span class="word-count">0 từ / 5000 tự hạn mức</span>
+                                <button class="clear-btn">Xóa tất cả</button>
+                            </div>
+                        </div>
+
+                        <!-- Panel: File Upload -->
+                        <div id="file-upload" class="input-panel" style="display: none;">
+                            <div class="dropzone">
+                                <div class="drop-icon">
+                                    <i class="fa-regular fa-file-pdf"></i>
+                                </div>
+                                <p class="drop-title">Kéo thả file vào đây hoặc nhấn để chọn</p>
+                                <p class="drop-desc">Hỗ trợ .PDF, .DOCX, .TXT (Tối đa 15MB)</p>
+                                <button class="browse-btn">Chọn tài liệu</button>
+                            </div>
+                        </div>
+
+                        <!-- Panel: URL Input -->
+                        <div id="url-input" class="input-panel" style="display: none;">
+                            <div class="url-wrapper">
+                                <i class="fa-solid fa-earth-asia"></i>
+                                <input type="text" placeholder="https://vnexpress.net/bai-viet-hay...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Options & Action -->
+                <div class="action-bar">
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <label>Độ dài tóm tắt</label>
+                            <div class="segmented-control">
+                                <div class="segment">Ngắn</div>
+                                <div class="segment active">Vừa</div>
+                                <div class="segment">Chi tiết</div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <label>Kiểu trình bày</label>
+                            <div class="select-box">
+                                <select>
+                                    <option value="bullet">Gạch đầu dòng</option>
+                                    <option value="paragraph">Đoạn văn tự nhiên</option>
+                                    <option value="key-value">Ý chính & Diễn giải</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="summarize-btn" id="generateBtn">
+                        <span class="btn-text">Tạo tóm tắt</span>
+                        <i class="fa-solid fa-bolt"></i>
+                    </button>
+                </div>
+
+                <!-- Results Area -->
+                <div class="result-area" id="resultArea" style="display: none;">
+                    <div class="result-header">
+                        <h3><i class="fa-solid fa-list-check"></i> Kết quả tóm tắt</h3>
+                        <div class="result-actions">
+                            <div class="star-rating" title="Đánh giá chất lượng">
+                                <i class="fa-solid fa-star star-icon"></i>
+                                <i class="fa-solid fa-star star-icon"></i>
+                                <i class="fa-solid fa-star star-icon"></i>
+                                <i class="fa-solid fa-star star-icon"></i>
+                                <i class="fa-regular fa-star star-icon"></i>
+                            </div>
+                            <button class="icon-btn copy-btn"><i class="fa-regular fa-copy"></i> Sao chép</button>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div class="loading-state" id="loadingState">
+                        <div class="spinner-container">
+                            <div class="spinner"></div>
+                        </div>
+                        <p>AI đang phân tích và trích xuất ý chính...</p>
+                        <div class="skeleton-lines">
+                            <div class="skeleton line"></div>
+                            <div class="skeleton line x-long"></div>
+                            <div class="skeleton line long"></div>
+                            <div class="skeleton line medium"></div>
+                        </div>
+                    </div>
+
+                    <!-- Final Output -->
+                    <div class="final-output" id="finalOutput" style="display: none;">
+                        <ul class="summary-bullets">
+                            <li><strong>Phát triển trí tuệ nhân tạo (AI):</strong> AI đang bùng nổ, đặc biệt là các mô
+                                hình LLM chuyên biệt giúp tự động hóa nhiều quy trình văn phòng.</li>
+                            <li><strong>Kiến trúc hệ thống RAG:</strong> Mô hình Retrieval-Augmented Generation đóng vai
+                                trò thiết yếu giúp AI truy xuất thông tin từ kho tài liệu nội bộ chính xác mà không bị
+                                hiện tượng "ảo giác" (hallucination).</li>
+                            <li><strong>Lợi ích Doanh nghiệp:</strong> Ứng dụng tích hợp RAG và Tóm tắt cho phép doanh
+                                nghiệp tiết kiệm 60% thời gian nghiên cứu và đọc hiểu tài liệu dài hạn.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Micro interactions -->
+    <div class="toast-notification" id="toast">
+        <i class="fa-solid fa-check-circle"></i> Đã sao chép vào clipboard!
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

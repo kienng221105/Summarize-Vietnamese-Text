@@ -9,7 +9,7 @@ Mô tả sự giao tiếp tĩnh giữa các cụm thành phần chính. Dữ li�
 ```mermaid
 flowchart TD
 
-  Client[Headless Drupal AI] -->|REST API| API[FastAPI Backend / API Gateway]
+  Client -->|REST API| API[FastAPI Backend / API Gateway]
 
   API --> Auth[Xác thực]
   API --> Admin[Quản trị viên]
@@ -305,6 +305,219 @@ flowchart TD
   Report --> Perf["System Performance\nLatency / TPS"]
 
   Admin["Admin / Data Analyst"] -->|Phân tích| Report
+```
+
+---
+
+## 7️ Sơ đồ Lớp (Class Diagram)
+
+Sơ đồ lớp kiến trúc mô tả chi tiết các thành phần cấu trúc (Routers, Services, Models), các phương thức (methods) và mối quan hệ của chúng trong ứng dụng FastAPI Backend.
+
+```mermaid
+classDiagram
+
+    %% Interface / API Layer
+    class AuthRouter {
+        +register(user, db)
+        +login(form_data, db)
+    }
+    class AIRouter {
+        +post_summarize(request, db, current_user)
+        +get_history(conversation_id, db, current_user)
+    }
+    class RatingRouter {
+        +rate(rating_data, db, current_user)
+        +get_rate(conversation_id, db, current_user)
+    }
+    class HistoryRouter {
+        +list_conversations(db, current_user)
+        +delete_conv(conversation_id, db, current_user)
+    }
+    class AdminRouter {
+        +list_users(db, current_admin)
+        +get_logs(db, current_admin)
+    }
+
+    %% Business Logic Layer
+    class AuthService {
+        +verify_password(plain_password, hashed_password)
+        +get_password_hash(password)
+        +create_access_token(data, expires_delta)
+    }
+    class AIService {
+        +create_conversation(db, user_id, title)
+        +create_message(db, conversation_id, content)
+        +get_messages(db, conversation_id)
+    }
+    class UserService {
+        +get_user_by_email(db, email)
+        +get_user(db, user_id)
+        +create_user(db, user)
+    }
+    class HistoryService {
+        +get_user_conversations(db, user_id)
+        +get_user_activities(db, user_id)
+        +delete_conversation(db, conversation_id, user_id)
+    }
+    class RatingService {
+        +create_rating(db, user_id, rating_data)
+        +get_rating(db, conversation_id)
+    }
+    class DocumentService {
+        +upload_document(file, user_id)
+        +get_document_status(document_id)
+    }
+
+    %% Data Access / Models Layer
+    class AppUser {
+        +UUID id
+        +String email
+        +String password_hash
+        +String role
+        +Boolean is_active
+        +DateTime created_at
+    }
+    class Conversation {
+        +UUID id
+        +UUID user_id
+        +String title
+        +DateTime updated_at
+    }
+    class Message {
+        +UUID id
+        +UUID conversation_id
+        +String content
+        +Boolean is_user
+        +DateTime created_at
+    }
+    class Document {
+        +UUID id
+        +UUID conversation_id
+        +String filename
+        +String file_type
+        +String file_path
+        +String vector_collection_id
+        +Integer chunk_count
+        +String embedding_model
+        +DateTime created_at
+    }
+    class Rating {
+        +UUID id
+        +UUID user_id
+        +UUID conversation_id
+        +Integer rating
+        +String feedback
+        +DateTime created_at
+    }
+    class SystemLog {
+        +UUID id
+        +String endpoint
+        +String method
+        +Integer status_code
+        +Integer response_time
+        +UUID user_id
+        +String error_message
+        +DateTime created_at
+    }
+    class UserActivity {
+        +UUID id
+        +UUID user_id
+        +String action
+        +String details
+        +DateTime created_at
+    }
+
+    %% Relationships (Dependencies & Associations)
+    AuthRouter --> AuthService : uses
+    AuthRouter --> UserService : uses
+    AIRouter --> AIService : uses
+    RatingRouter --> RatingService : uses
+    HistoryRouter --> HistoryService : uses
+    AdminRouter --> UserService : uses
+
+    UserService ..> AppUser : queries/mutates
+    HistoryService ..> Conversation : queries/mutates
+    HistoryService ..> UserActivity : queries
+    RatingService ..> Rating : manages
+    AIService ..> Conversation : manages
+    AIService ..> Message : manages
+    DocumentService ..> Document : manages
+    
+    %% Entity Relationships
+    AppUser "1" *-- "0..*" Conversation : owns
+    AppUser "1" *-- "0..*" UserActivity : performs
+    AppUser "1" *-- "0..*" Rating : gives
+    Conversation "1" *-- "0..*" Message : contains
+    Conversation "1" *-- "0..*" Document : attaches
+    Conversation "1" *-- "0..1" Rating : receives
+```
+
+---
+
+## 8️ Sơ đồ Trạng thái (State Diagram)
+
+Sơ đồ này mô tả vòng đời (lifecycle) ở mức chi tiết của từng đối tượng chính trong hệ thống, được bố trí theo chiều ngang để dễ theo dõi.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+
+    state "Trạng thái User" as UserLifecycle {
+        direction LR
+        [*] --> Khach
+        Khach : Khách vãng lai
+        DaDangNhap : Đã đăng nhập
+        TuongTac : Đang hoạt động
+        
+        Khach --> DaDangNhap : Đăng nhập
+        DaDangNhap --> TuongTac : Gọi API
+    }
+
+    state "Trạng thái Document" as DocLifecycle {
+        direction LR
+        [*] --> DaTaiLen
+        DaTaiLen : Đã tải lên
+        DocFile : Đang đọc file
+        TachDoan : Tách đoạn 
+        VectorHoa : Vector hóa
+        DaLuuDoc : Lưu ChromaDB
+        
+        DaTaiLen --> DocFile : Đọc PDF/Word
+        DocFile --> TachDoan : Xử lý Text
+        TachDoan --> VectorHoa : Mô hình Embedding
+        VectorHoa --> DaLuuDoc : Lưu CSDL
+        DaLuuDoc --> [*]
+    }
+
+    state "Trạng thái Conversation" as ConvLifecycle {
+        direction LR
+        [*] --> KhoiTao
+        KhoiTao : Khởi tạo
+        DangXuLy : Đang tóm tắt
+        ThanhCong : Thành công
+        ThatBai : Thất bại
+        DaDanhGia : Đã đánh giá
+        
+        KhoiTao --> DangXuLy : Gọi AI
+        DangXuLy --> ThanhCong : Xong
+        DangXuLy --> ThatBai : Báo lỗi API
+        ThanhCong --> DaDanhGia : User phản hồi
+        DaDanhGia --> [*]
+    }
+
+    state "Trạng thái Message (Kết quả AI)" as MsgLifecycle {
+        direction LR
+        [*] --> ChoXuLy
+        ChoXuLy : Chờ đợi
+        DangChay : Đang chạy ViT5
+        CoKetQua : Có kết quả thô
+        DaLuuMsg : Lưu DB
+        
+        ChoXuLy --> DangChay : Trigger LLM
+        DangChay --> CoKetQua : Response
+        CoKetQua --> DaLuuMsg : Insert SQL
+        DaLuuMsg --> [*]
+    }
 ```
 
 ---
